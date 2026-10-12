@@ -1,0 +1,13 @@
+{
+  "name": "classwatch-server",
+  "version": "1.0.0",
+  "description": "ClassWatch teacher server and dashboard",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}

@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClassWatch — Teacher Dashboard</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: rgba(30, 41, 59, 0.75);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --success: #10b981;
+      --danger: #ef4444;
+      --danger-bg: rgba(239, 68, 68, 0.15);
+      --danger-border: rgba(239, 68, 68, 0.4);
+      --warning: #f59e0b;
+      --warning-bg: rgba(245, 158, 11, 0.15);
+      --warning-border: rgba(245, 158, 11, 0.4);
+      --info: #06b6d4;
+      --info-bg: rgba(6, 182, 212, 0.15);
+      --gray-offline: #64748b;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+      --badge-bg: rgba(255, 255, 255, 0.06);
+    }
+
+    [data-theme="light"] {
+      --bg: #f1f5f9;
+      --card-bg: rgba(255, 255, 255, 0.9);
+      --card-border: rgba(0, 0, 0, 0.08);
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --success: #059669;
+      --danger: #dc2626;
+      --danger-bg: rgba(220, 38, 38, 0.1);
+      --danger-border: rgba(220, 38, 38, 0.3);
+      --warning: #d97706;
+      --warning-bg: rgba(217, 119, 6, 0.1);
+      --warning-border: rgba(217, 119, 6, 0.3);
+      --info: #0891b2;
+      --info-bg: rgba(8, 145, 178, 0.1);
+      --gray-offline: #94a3b8;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+      --badge-bg: rgba(0, 0, 0, 0.05);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    header {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--card-border);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: var(--shadow);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 1.2rem;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    }
+
+    .brand-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .header-info {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .info-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--badge-bg);
+      border: 1px solid var(--card-border);
+      padding: 0.4rem 0.85rem;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .code-value {
+      font-family: monospace;
+      font-size: 1.1rem;
+      color: var(--primary);
+      letter-spacing: 0.05em;
+    }
+
+    .status-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background-color: var(--success);
+      display: inline-block;
+      box-shadow: 0 0 8px var(--success);
+    }
+
+    .status-dot.offline {
+      background-color: var(--danger);
+      box-shadow: 0 0 8px var(--danger);
+    }
+
+    .btn {
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      padding: 0.5rem 0.9rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: transform 0.1s, opacity 0.2s, background-color 0.2s;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background: var(--badge-bg);
+      color: var(--text-main);
+      border: 1px solid var(--card-border);
+    }
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+    .btn-danger:hover {
+      background: #b91c1c;
+    }
+
+    .btn-warning {
+      background: var(--warning);
+      color: white;
+    }
+    .btn-warning:hover {
+      background: #b45309;
+    }
+
+    .btn-sm {
+      padding: 0.3rem 0.6rem;
+      font-size: 0.78rem;
+      border-radius: 6px;
+    }
+
+    main {
+      flex: 1;
+      padding: 1.5rem 2rem;
+      display: grid;
+      grid-template-columns: 340px 1fr 360px;
+      gap: 1.5rem;
+      max-width: 1800px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 1300px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 1.25rem;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      backdrop-filter: blur(8px);
+      margin-bottom: 1.25rem;
+    }
+
+    .card:last-child {
+      margin-bottom: 0;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .badge-count {
+      background: var(--primary);
+      color: white;
+      font-size: 0.75rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+      font-weight: 700;
+    }
+
+    /* Left panel editors */
+    .domain-textarea {
+      width: 100%;
+      height: 110px;
+      background: var(--badge-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 0.75rem;
+      color: var(--text-main);
+      font-family: monospace;
+      font-size: 0.84rem;
+      resize: vertical;
+      line-height: 1.5;
+    }
+    .domain-textarea:focus {
+      outline: 2px solid var(--primary);
+      border-color: transparent;
+    }
+
+    .helper-text {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+      line-height: 1.4;
+    }
+
+    /* Study Folders Editor UI */
+    .folders-editor-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      max-height: 380px;
+      overflow-y: auto;
+      padding-right: 0.25rem;
+    }
+
+    .folder-edit-box {
+      background: var(--badge-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 0.75rem;
+    }
+
+    .folder-edit-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .folder-name-input {
+      background: transparent;
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      width: 60%;
+    }
+
+    .folder-links-table {
+      width: 100%;
+      font-size: 0.78rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .link-row {
+      display: flex;
+      gap: 0.35rem;
+      margin-bottom: 0.35rem;
+      align-items: center;
+    }
+
+    .link-input {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      font-size: 0.76rem;
+      padding: 0.25rem 0.4rem;
+      border-radius: 4px;
+      flex: 1;
+    }
+
+    /* Student Grid */
+    .students-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+      align-content: start;
+    }
+
+    .student-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    /* High alert: Social media (Red) */
+    .student-card.high-alert {
+      background: var(--danger-bg);
+      border: 2px solid var(--danger);
+      box-shadow: 0 0 16px rgba(239, 68, 68, 0.3);
+      animation: pulseBorderRed 2s infinite ease-in-out;
+    }
+
+    /* Medium alert: Off-topic (Amber) */
+    .student-card.medium-alert {
+      background: var(--warning-bg);
+      border: 2px solid var(--warning);
+      box-shadow: 0 0 14px rgba(245, 158, 11, 0.25);
+    }
+
+    @keyframes pulseBorderRed {
+      0%, 100% { border-color: var(--danger); }
+      50% { border-color: rgba(239, 68, 68, 0.4); }
+    }
+
+    .student-card.offline {
+      opacity: 0.55;
+      background: var(--badge-bg);
+      border-color: var(--gray-offline);
+      filter: grayscale(0.8);
+    }
+
+    .student-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .student-name-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .student-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #4f46e5, #06b6d4);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+
+    .student-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      word-break: break-word;
+    }
+
+    .domain-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--badge-bg);
+      border: 1px solid var(--card-border);
+      padding: 0.45rem 0.65rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-family: monospace;
+      word-break: break-all;
+    }
+
+    .student-card.high-alert .domain-badge {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: var(--danger-border);
+      color: #fecaca;
+      font-weight: 700;
+    }
+
+    .student-card.medium-alert .domain-badge {
+      background: rgba(245, 158, 11, 0.2);
+      border-color: var(--warning-border);
+      color: #fde68a;
+      font-weight: 700;
+    }
+
+    .tabs-summary {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .tabs-detail {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      max-height: 50px;
+      overflow-y: auto;
+      background: var(--badge-bg);
+      padding: 0.35rem;
+      border-radius: 4px;
+      word-break: break-all;
+    }
+
+    .student-actions {
+      display: flex;
+      gap: 0.4rem;
+      margin-top: auto;
+    }
+
+    /* Alert Feed */
+    .alerts-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      overflow-y: auto;
+      max-height: calc(100vh - 200px);
+    }
+
+    .alert-card {
+      background: var(--card-bg);
+      border-left: 4px solid var(--warning);
+      border-top: 1px solid var(--card-border);
+      border-right: 1px solid var(--card-border);
+      border-bottom: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      animation: slideIn 0.2s ease-out;
+    }
+
+    .alert-card.high {
+      border-left-color: var(--danger);
+      background: rgba(239, 68, 68, 0.08);
+    }
+
+    .alert-card.medium {
+      border-left-color: var(--warning);
+      background: rgba(245, 158, 11, 0.08);
+    }
+
+    .alert-card.ack {
+      border-left-color: var(--success);
+      background: rgba(16, 185, 129, 0.08);
+    }
+
+    .alert-card.leave {
+      border-left-color: #f97316;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .alert-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .alert-badge {
+      font-size: 0.7rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 9999px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .alert-badge.social {
+      background: var(--danger);
+      color: white;
+    }
+
+    .alert-badge.offtopic {
+      background: var(--warning);
+      color: white;
+    }
+
+    .alert-badge.ack {
+      background: var(--success);
+      color: white;
+    }
+
+    .alert-time {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .alert-content {
+      font-size: 0.82rem;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .alert-actions {
+      display: flex;
+      gap: 0.35rem;
+      margin-top: 0.2rem;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 2.5rem 1rem;
+      color: var(--text-muted);
+      font-size: 0.88rem;
+    }
+
+    /* Modal for warning message */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 1.5rem;
+      width: 90%;
+      max-width: 440px;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+    }
+
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+
+    .modal-input {
+      width: 100%;
+      padding: 0.65rem;
+      background: var(--badge-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      color: var(--text-main);
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+    }
+
+    /* Toast Notification (4s auto-dismiss) */
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 0.85rem 1.4rem;
+      border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: none;
+      z-index: 200;
+      animation: slideIn 0.2s ease-out;
+    }
+  </style>
+</head>
+<body data-theme="dark">
+
+  <header>
+    <div class="brand">
+      <div class="brand-icon">CW</div>
+      <div>
+        <div class="brand-title">ClassWatch</div>
+        <div class="brand-subtitle">Teacher Command Dashboard</div>
+      </div>
+    </div>
+
+    <div class="header-info">
+      <div class="info-pill">
+        <span>Class Code:</span>
+        <span class="code-value" id="displayClassCode">----</span>
+      </div>
+
+      <div class="info-pill">
+        <span>Server:</span>
+        <span id="displayServerAddress" style="font-family: monospace;">Connecting...</span>
+      </div>
+
+      <div class="info-pill">
+        <span class="status-dot" id="wsStatusDot"></span>
+        <span id="wsStatusText">Connecting</span>
+      </div>
+
+      <button class="btn btn-secondary btn-sm" id="muteToggleBtn" title="Toggle audio alerts">
+        🔊 Audio: ON
+      </button>
+
+      <button class="btn btn-secondary btn-sm" id="themeToggleBtn" title="Toggle Light/Dark">
+        🌓 Theme
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Left column: Study Folders & Domain Management -->
+    <div>
+      <!-- Study Folders Management Card -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>📚 Study Folders</span>
+          </div>
+          <button class="btn btn-primary btn-sm" id="saveFoldersBtn">Save & Push</button>
+        </div>
+
+        <p class="helper-text">
+          Edit study links per subject. Pushes to student dashboards instantly and domains are automatically allowed.
+        </p>
+
+        <div class="folders-editor-list" id="foldersEditorList">
+          <!-- Dynamically populated folder editors -->
+        </div>
+
+        <button class="btn btn-secondary btn-sm" id="addFolderBtn" style="margin-top: 0.6rem;">
+          + Add New Folder
+        </button>
+      </section>
+
+      <!-- Allowed Domains List -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>🛡️ Allowed Domains</span>
+          </div>
+          <button class="btn btn-primary btn-sm" id="saveDomainsBtn">Save & Push</button>
+        </div>
+
+        <p class="helper-text">
+          Domains allowed in addition to study folders (subdomains allowed automatically).
+        </p>
+
+        <textarea id="domainsTextarea" class="domain-textarea" placeholder="wikipedia.org&#10;khanacademy.org&#10;docs.google.com"></textarea>
+      </section>
+
+      <!-- Social Media Detection List -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>🚫 Social / Entertainment</span>
+          </div>
+          <button class="btn btn-danger btn-sm" id="saveSocialBtn">Save & Push</button>
+        </div>
+
+        <p class="helper-text">
+          Sites that trigger HIGH severity alerts (Red).
+        </p>
+
+        <textarea id="socialTextarea" class="domain-textarea" style="height: 90px;" placeholder="instagram.com&#10;facebook.com&#10;tiktok.com"></textarea>
+      </section>
+    </div>
+
+    <!-- Center column: Live Student Grid -->
+    <div>
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>👥 Students</span>
+            <span class="badge-count" id="studentCountBadge">0</span>
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-secondary btn-sm" id="unlockAllBtn" title="Unlock all students">
+              🔓 Unlock All
+            </button>
+          </div>
+        </div>
+
+        <div class="students-grid" id="studentsGrid">
+          <div class="empty-state">
+            No students connected yet.<br>
+            Students can join using class code <strong id="emptyClassCode">----</strong> via the Chrome extension.
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Right column: Alert Feed -->
+    <div>
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>🚨 Live Alerts</span>
+            <span class="badge-count" style="background: var(--danger);" id="alertCountBadge">0</span>
+          </div>
+          <button class="btn btn-secondary btn-sm" id="dismissAllBtn">Dismiss All</button>
+        </div>
+
+        <div class="alerts-container" id="alertsList">
+          <div class="empty-state">
+            No alerts. All students are on approved domains.
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Modal for Custom Warning Message -->
+  <div class="modal-overlay" id="warningModal">
+    <div class="modal">
+      <div class="modal-title">Send Warning Banner to Student</div>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;" id="modalStudentName">Recipient: </p>
+      <input type="text" class="modal-input" id="warningTextInput" value="Please return to your assigned educational activity.">
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="cancelWarningBtn">Cancel</button>
+        <button class="btn btn-warning" id="confirmWarningBtn">Send Warning Banner</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toastMessage"></div>
+
+  <script>
+    // Escape all student and user text to prevent XSS
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>"']/g, function(match) {
+        switch (match) {
+          case '&': return '&amp;';
+          case '<': return '&lt;';
+          case '>': return '&gt;';
+          case '"': return '&quot;';
+          case "'": return '&#39;';
+          default: return match;
+        }
+      });
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const teacherKey = urlParams.get('key') || '';
+
+    let state = {
+      classCode: '----',
+      serverAddress: '',
+      allowedDomains: [],
+      studyFolders: [],
+      socialDomains: [],
+      students: [],
+      alerts: []
+    };
+
+    let ws = null;
+    let selectedStudentIdForWarn = null;
+    let isMuted = localStorage.getItem('classwatch_muted') === 'true';
+    let originalTitle = document.title;
+    let titleFlashInterval = null;
+    let previousAlertCount = 0;
+
+    // Web Audio API soft beep
+    function playAlertBeep() {
+      if (isMuted) return;
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+        osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.12); // A5
+
+        gain.gain.setValueAtTime(0.18, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.28);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.28);
+      } catch (e) {
+        console.warn('Audio play error:', e);
+      }
+    }
+
+    // Flash browser title on alert
+    function flashTitle(alertCount) {
+      if (document.hasFocus()) return;
+      if (titleFlashInterval) clearInterval(titleFlashInterval);
+      let isFlashing = false;
+      titleFlashInterval = setInterval(() => {
+        document.title = isFlashing ? `(${alertCount}) New alert - ClassWatch` : originalTitle;
+        isFlashing = !isFlashing;
+      }, 1000);
+    }
+
+    window.addEventListener('focus', () => {
+      if (titleFlashInterval) {
+        clearInterval(titleFlashInterval);
+        titleFlashInterval = null;
+      }
+      document.title = originalTitle;
+    });
+
+    // Toast helper (4s display)
+    let toastTimer = null;
+    function showToast(msg, isAlert = false) {
+      const t = document.getElementById('toastMessage');
+      t.innerText = msg;
+      t.style.display = 'block';
+      if (isAlert) {
+        t.style.borderColor = 'var(--danger)';
+      } else {
+        t.style.borderColor = 'var(--card-border)';
+      }
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        t.style.display = 'none';
+      }, 4000);
+    }
+
+    // Connect to /teacher WebSocket
+    function connectTeacherWs() {
+      const host = window.location.host;
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${protocol}//${host}/teacher?key=${encodeURIComponent(teacherKey)}`;
+
+      const dot = document.getElementById('wsStatusDot');
+      const text = document.getElementById('wsStatusText');
+
+      ws = new WebSocket(wsUrl);
+
+      ws.onopen = () => {
+        dot.classList.remove('offline');
+        text.innerText = 'Connected';
+      };
+
+      ws.onclose = () => {
+        dot.classList.add('offline');
+        text.innerText = 'Disconnected';
+        setTimeout(connectTeacherWs, 3000);
+      };
+
+      ws.onerror = (err) => {
+        console.error('WS Error:', err);
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const msg = JSON.parse(event.data);
+          handleServerMessage(msg);
+        } catch (e) {
+          console.error('Failed to parse WS message:', e);
+        }
+      };
+    }
+
+    function handleServerMessage(msg) {
+      if (msg.type === 'INIT') {
+        state.classCode = msg.classCode;
+        state.serverAddress = msg.serverAddress;
+        state.allowedDomains = msg.allowedDomains || [];
+        state.studyFolders = msg.studyFolders || [];
+        state.socialDomains = msg.socialDomains || [];
+        state.students = msg.students || [];
+        state.alerts = msg.alerts || [];
+
+        previousAlertCount = state.alerts.length;
+
+        document.getElementById('displayClassCode').innerText = state.classCode;
+        document.getElementById('emptyClassCode').innerText = state.classCode;
+        document.getElementById('displayServerAddress').innerText = state.serverAddress;
+        document.getElementById('domainsTextarea').value = state.allowedDomains.join('\n');
+        document.getElementById('socialTextarea').value = state.socialDomains.join('\n');
+
+        renderFoldersEditor();
+        renderStudents();
+        renderAlerts();
+
+      } else if (msg.type === 'STUDENTS_UPDATE') {
+        state.students = msg.students || [];
+        renderStudents();
+
+      } else if (msg.type === 'ALERTS_UPDATE') {
+        const newAlerts = msg.alerts || [];
+        // Check if there are newly added alerts
+        if (newAlerts.length > previousAlertCount && newAlerts.length > 0) {
+          const newest = newAlerts[0];
+          playAlertBeep();
+          flashTitle(newAlerts.length);
+          showToast(newest.message || 'New student alert received', true);
+        }
+        previousAlertCount = newAlerts.length;
+        state.alerts = newAlerts;
+        renderAlerts();
+
+      } else if (msg.type === 'ALLOWED_DOMAINS_UPDATE') {
+        state.allowedDomains = msg.allowedDomains || [];
+        document.getElementById('domainsTextarea').value = state.allowedDomains.join('\n');
+
+      } else if (msg.type === 'STUDY_FOLDERS_UPDATE') {
+        state.studyFolders = msg.studyFolders || [];
+        renderFoldersEditor();
+
+      } else if (msg.type === 'SOCIAL_DOMAINS_UPDATE') {
+        state.socialDomains = msg.socialDomains || [];
+        document.getElementById('socialTextarea').value = state.socialDomains.join('\n');
+      }
+    }
+
+    // Render Study Folders Editor
+    function renderFoldersEditor() {
+      const container = document.getElementById('foldersEditorList');
+      container.innerHTML = '';
+
+      state.studyFolders.forEach((folder, fIndex) => {
+        const fBox = document.createElement('div');
+        fBox.className = 'folder-edit-box';
+
+        let linksHtml = '';
+        (folder.links || []).forEach((link, lIndex) => {
+          linksHtml += `
+            <div class="link-row">
+              <input type="text" class="link-input" placeholder="Title" value="${escapeHtml(link.title)}" onchange="updateLinkTitle(${fIndex}, ${lIndex}, this.value)">
+              <input type="text" class="link-input" placeholder="domain.com" value="${escapeHtml(link.domain)}" onchange="updateLinkDomain(${fIndex}, ${lIndex}, this.value)">
+              <button class="btn btn-secondary btn-sm" style="padding: 0.2rem 0.4rem; color: var(--danger);" onclick="removeLink(${fIndex}, ${lIndex})">✕</button>
+            </div>
+          `;
+        });
+
+        fBox.innerHTML = `
+          <div class="folder-edit-header">
+            <input type="text" class="folder-name-input" value="${escapeHtml(folder.name)}" onchange="updateFolderName(${fIndex}, this.value)">
+            <div>
+              <button class="btn btn-secondary btn-sm" style="padding: 0.2rem 0.4rem;" onclick="addLink(${fIndex})">+ Link</button>
+              <button class="btn btn-secondary btn-sm" style="padding: 0.2rem 0.4rem; color: var(--danger);" onclick="removeFolder(${fIndex})">🗑</button>
+            </div>
+          </div>
+          <div class="folder-links-table">${linksHtml}</div>
+        `;
+
+        container.appendChild(fBox);
+      });
+    }
+
+    window.updateFolderName = (fIndex, val) => {
+      state.studyFolders[fIndex].name = val.trim();
+    };
+
+    window.updateLinkTitle = (fIndex, lIndex, val) => {
+      state.studyFolders[fIndex].links[lIndex].title = val.trim();
+    };
+
+    window.updateLinkDomain = (fIndex, lIndex, val) => {
+      const d = val.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+      state.studyFolders[fIndex].links[lIndex].domain = d;
+      if (!state.studyFolders[fIndex].links[lIndex].url || state.studyFolders[fIndex].links[lIndex].url.startsWith('https://')) {
+        state.studyFolders[fIndex].links[lIndex].url = 'https://' + d;
+      }
+    };
+
+    window.addLink = (fIndex) => {
+      state.studyFolders[fIndex].links.push({ title: 'New Site', domain: 'example.com', url: 'https://example.com' });
+      renderFoldersEditor();
+    };
+
+    window.removeLink = (fIndex, lIndex) => {
+      state.studyFolders[fIndex].links.splice(lIndex, 1);
+      renderFoldersEditor();
+    };
+
+    window.removeFolder = (fIndex) => {
+      state.studyFolders.splice(fIndex, 1);
+      renderFoldersEditor();
+    };
+
+    document.getElementById('addFolderBtn').addEventListener('click', () => {
+      const id = 'folder_' + Date.now();
+      state.studyFolders.push({
+        id,
+        name: 'New Subject',
+        color: 'blue',
+        links: []
+      });
+      renderFoldersEditor();
+    });
+
+    // Render Student Grid
+    function renderStudents() {
+      const container = document.getElementById('studentsGrid');
+      document.getElementById('studentCountBadge').innerText = state.students.length;
+
+      if (!state.students || state.students.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            No students connected yet.<br>
+            Students can join using class code <strong>${escapeHtml(state.classCode)}</strong> via the Chrome extension.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = '';
+      state.students.forEach(s => {
+        const card = document.createElement('div');
+        let cardClass = 'student-card';
+
+        if (!s.isOnline) {
+          cardClass += ' offline';
+        } else if (s.severity === 'high' || s.isSocial) {
+          cardClass += ' high-alert'; // Red
+        } else if (s.severity === 'medium' || s.isDisallowed) {
+          cardClass += ' medium-alert'; // Amber
+        }
+        card.className = cardClass;
+
+        const initial = (s.name || 'S').charAt(0).toUpperCase();
+        const activeDom = s.activeDomain || 'No active web page';
+        const isLocked = s.isLocked;
+
+        let statusText = 'Active (Approved)';
+        if (!s.isOnline) {
+          statusText = 'Offline (>60s)';
+        } else if (s.severity === 'high' || s.isSocial) {
+          statusText = 'Social Media (High Alert)';
+        } else if (s.severity === 'medium' || s.isDisallowed) {
+          statusText = 'Off-topic (Medium Alert)';
+        }
+
+        const tabListString = (s.tabs && s.tabs.length > 0)
+          ? s.tabs.map(t => escapeHtml(t)).join(', ')
+          : 'None';
+
+        card.innerHTML = `
+          <div class="student-card-header">
+            <div class="student-name-group">
+              <div class="student-avatar">${escapeHtml(initial)}</div>
+              <div>
+                <div class="student-name">${escapeHtml(s.name)}</div>
+                <div style="font-size: 0.72rem; color: var(--text-muted);">${escapeHtml(statusText)}</div>
+              </div>
+            </div>
+            <div class="student-indicators">
+              ${isLocked ? '<span class="lock-indicator" title="Screen is locked">🔒</span>' : ''}
+            </div>
+          </div>
+
+          <div class="domain-badge" title="Active domain">
+            <span>🌐</span>
+            <span>${escapeHtml(activeDom)}</span>
+          </div>
+
+          <div class="tabs-summary">
+            <span>📑 Open Tabs: <strong>${escapeHtml(s.tabCount)}</strong></span>
+          </div>
+
+          <div class="tabs-detail" title="Open domains">
+            Tabs: ${tabListString}
+          </div>
+
+          <div class="student-actions">
+            <button class="btn btn-warning btn-sm" onclick="openWarnModal('${escapeHtml(s.id)}', '${escapeHtml(s.name)}')">
+              ⚠️ Warn
+            </button>
+            ${isLocked
+              ? `<button class="btn btn-secondary btn-sm" onclick="toggleLock('${escapeHtml(s.id)}', false)">🔓 Unlock</button>`
+              : `<button class="btn btn-danger btn-sm" onclick="toggleLock('${escapeHtml(s.id)}', true)">🔒 Lock</button>`
+            }
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    // Render Alerts Feed (Newest on top)
+    function renderAlerts() {
+      const container = document.getElementById('alertsList');
+      document.getElementById('alertCountBadge').innerText = state.alerts.length;
+
+      if (!state.alerts || state.alerts.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            No active alerts.<br>All students are on approved domains.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = '';
+      state.alerts.forEach(a => {
+        const item = document.createElement('div');
+        const isLeave = a.type === 'STUDENT_LEFT';
+        const isAck = a.type === 'WARNING_ACK';
+        const isHigh = a.severity === 'high' || a.category === 'social';
+
+        let cardClass = 'alert-card';
+        if (isHigh) cardClass += ' high';
+        else if (isAck) cardClass += ' ack';
+        else if (isLeave) cardClass += ' leave';
+        else cardClass += ' medium';
+
+        item.className = cardClass;
+
+        const timeStr = new Date(a.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+        let badgeLabel = 'Alert';
+        let badgeClass = 'alert-badge offtopic';
+        if (isHigh) {
+          badgeLabel = 'Social media';
+          badgeClass = 'alert-badge social';
+        } else if (isAck) {
+          badgeLabel = 'Acknowledged';
+          badgeClass = 'alert-badge ack';
+        } else if (isLeave) {
+          badgeLabel = 'Left Session';
+          badgeClass = 'alert-badge offtopic';
+        } else {
+          badgeLabel = 'Off-topic';
+          badgeClass = 'alert-badge offtopic';
+        }
+
+        item.innerHTML = `
+          <div class="alert-header">
+            <div style="display: flex; align-items: center; gap: 0.4rem;">
+              <span class="${badgeClass}">${badgeLabel}</span>
+              <strong style="font-size: 0.86rem;">${escapeHtml(a.studentName)}</strong>
+            </div>
+            <span class="alert-time">${escapeHtml(timeStr)}</span>
+          </div>
+          <div class="alert-content">
+            ${escapeHtml(a.message || (a.domain ? 'Opened ' + a.domain : ''))}
+          </div>
+          <div class="alert-actions">
+            ${(!isLeave && !isAck) ? `
+              <button class="btn btn-warning btn-sm" onclick="openWarnModal('${escapeHtml(a.studentId)}', '${escapeHtml(a.studentName)}')">Send warning</button>
+              <button class="btn btn-danger btn-sm" onclick="toggleLock('${escapeHtml(a.studentId)}', true)">Lock screen</button>
+            ` : ''}
+            <button class="btn btn-secondary btn-sm" onclick="dismissAlert('${escapeHtml(a.id)}')">Dismiss</button>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // Actions
+    function saveStudyFolders() {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          type: 'UPDATE_STUDY_FOLDERS',
+          folders: state.studyFolders
+        }));
+        showToast('Study folders saved & pushed to students!');
+      }
+    }
+
+    function saveAllowedDomains() {
+      const text = document.getElementById('domainsTextarea').value;
+      const domains = text.split('\n').map(d => d.trim().toLowerCase()).filter(Boolean);
+
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          type: 'UPDATE_ALLOWED_DOMAINS',
+          domains
+        }));
+        showToast('Allowed domains saved & pushed to students!');
+      }
+    }
+
+    function saveSocialDomains() {
+      const text = document.getElementById('socialTextarea').value;
+      const domains = text.split('\n').map(d => d.trim().toLowerCase()).filter(Boolean);
+
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          type: 'UPDATE_SOCIAL_DOMAINS',
+          domains
+        }));
+        showToast('Social media list saved & updated!');
+      }
+    }
+
+    function openWarnModal(studentId, studentName) {
+      selectedStudentIdForWarn = studentId;
+      document.getElementById('modalStudentName').innerText = `Recipient: ${studentName}`;
+      document.getElementById('warningModal').classList.add('active');
+    }
+
+    function closeWarnModal() {
+      document.getElementById('warningModal').classList.remove('active');
+      selectedStudentIdForWarn = null;
+    }
+
+    function sendWarning() {
+      const message = document.getElementById('warningTextInput').value.trim();
+      if (selectedStudentIdForWarn && ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          type: 'SEND_WARNING',
+          studentId: selectedStudentIdForWarn,
+          message: message || 'Please stay focused on educational tasks.'
+        }));
+        showToast('Warning banner sent to student');
+      }
+      closeWarnModal();
+    }
+
+    function toggleLock(studentId, lockState) {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          type: lockState ? 'LOCK_STUDENT' : 'UNLOCK_STUDENT',
+          studentId,
+          locked: lockState
+        }));
+        showToast(lockState ? 'Screen locked' : 'Screen unlocked');
+      }
+    }
+
+    function unlockAll() {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: 'UNLOCK_ALL' }));
+        showToast('Unlocked all students');
+      }
+    }
+
+    function dismissAlert(alertId) {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          type: 'DISMISS_ALERT',
+          alertId
+        }));
+      }
+    }
+
+    function dismissAllAlerts() {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          type: 'DISMISS_ALL_ALERTS'
+        }));
+        showToast('Dismissed all alerts');
+      }
+    }
+
+    // Event Listeners
+    document.getElementById('saveFoldersBtn').addEventListener('click', saveStudyFolders);
+    document.getElementById('saveDomainsBtn').addEventListener('click', saveAllowedDomains);
+    document.getElementById('saveSocialBtn').addEventListener('click', saveSocialDomains);
+    document.getElementById('dismissAllBtn').addEventListener('click', dismissAllAlerts);
+    document.getElementById('unlockAllBtn').addEventListener('click', unlockAll);
+    document.getElementById('cancelWarningBtn').addEventListener('click', closeWarnModal);
+    document.getElementById('confirmWarningBtn').addEventListener('click', sendWarning);
+
+    // Mute toggle
+    const muteBtn = document.getElementById('muteToggleBtn');
+    function updateMuteBtn() {
+      muteBtn.innerText = isMuted ? '🔇 Audio: MUTED' : '🔊 Audio: ON';
+      muteBtn.style.color = isMuted ? 'var(--danger)' : 'inherit';
+    }
+    updateMuteBtn();
+
+    muteBtn.addEventListener('click', () => {
+      isMuted = !isMuted;
+      localStorage.setItem('classwatch_muted', isMuted);
+      updateMuteBtn();
+    });
+
+    // Theme Toggle
+    const themeBtn = document.getElementById('themeToggleBtn');
+    let currentTheme = localStorage.getItem('classwatch_theme') || 'dark';
+    document.body.setAttribute('data-theme', currentTheme);
+
+    themeBtn.addEventListener('click', () => {
+      currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.body.setAttribute('data-theme', currentTheme);
+      localStorage.setItem('classwatch_theme', currentTheme);
+    });
+
+    // Start WebSocket
+    connectTeacherWs();
+  </script>
+</body>
+</html>

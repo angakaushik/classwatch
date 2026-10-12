@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClassWatch — Screen Locked</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      background: radial-gradient(circle at center, #1e1b4b 0%, #09090b 100%);
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .ambient-glow {
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(239, 68, 68, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      animation: pulseGlow 4s infinite alternate ease-in-out;
+    }
+
+    @keyframes pulseGlow {
+      from { transform: translate(-50%, -50%) scale(0.9); opacity: 0.6; }
+      to { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+    }
+
+    .lock-card {
+      background: rgba(24, 24, 27, 0.85);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 40px rgba(239, 68, 68, 0.1);
+      backdrop-filter: blur(16px);
+      border-radius: 24px;
+      padding: 3rem 3.5rem;
+      text-align: center;
+      max-width: 580px;
+      width: 90%;
+      position: relative;
+      z-index: 10;
+    }
+
+    .lock-icon-container {
+      width: 80px;
+      height: 80px;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem auto;
+      font-size: 2.2rem;
+      box-shadow: 0 0 25px rgba(239, 68, 68, 0.3);
+    }
+
+    h1 {
+      font-size: 1.85rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.75rem;
+      color: #ffffff;
+    }
+
+    .subtitle {
+      color: #ef4444;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 1.25rem;
+    }
+
+    p {
+      color: #94a3b8;
+      font-size: 1.05rem;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    .info-footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 1.5rem;
+      display: flex;
+      justify-content: space-around;
+      font-size: 0.85rem;
+      color: #64748b;
+    }
+
+    .info-item span:first-child {
+      display: block;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #94a3b8;
+      margin-bottom: 0.2rem;
+    }
+
+    .info-item span:last-child {
+      font-weight: 700;
+      color: #e2e8f0;
+      font-size: 1rem;
+    }
+
+    .clock {
+      position: absolute;
+      top: 2rem;
+      right: 2.5rem;
+      font-family: monospace;
+      font-size: 1.1rem;
+      color: #64748b;
+      letter-spacing: 0.05em;
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient-glow"></div>
+  <div class="clock" id="liveClock">--:--:--</div>
+
+  <div class="lock-card">
+    <div class="lock-icon-container">
+      🔒
+    </div>
+    <div class="subtitle">Eyes on the Teacher</div>
+    <h1>Screen Locked by Teacher</h1>
+    <p>
+      Your device is currently paused for classroom instruction. Please direct your attention to the teacher at the front of the class.
+    </p>
+
+    <div class="info-footer">
+      <div class="info-item">
+        <span>Student</span>
+        <span id="studentNameDisplay">Student</span>
+      </div>
+      <div class="info-item">
+        <span>Class Code</span>
+        <span id="classCodeDisplay">----</span>
+      </div>
+      <div class="info-item">
+        <span>Status</span>
+        <span style="color: #ef4444;">Restricted</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Update live clock
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('liveClock').innerText = now.toLocaleTimeString();
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Read stored info from chrome.storage
+    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+      chrome.storage.local.get(['studentName', 'classCode'], (data) => {
+        if (data.studentName) {
+          document.getElementById('studentNameDisplay').innerText = data.studentName;
+        }
+        if (data.classCode) {
+          document.getElementById('classCodeDisplay').innerText = data.classCode;
+        }
+      });
+    }
+  </script>
+</body>
+</html>

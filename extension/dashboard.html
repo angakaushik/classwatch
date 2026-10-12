@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClassWatch — Student Study Dashboard</title>
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body data-theme="dark">
+
+  <!-- Header -->
+  <header>
+    <div class="brand-section">
+      <div class="brand-icon">CW</div>
+      <div>
+        <div class="brand-title">ClassWatch Study</div>
+        <div class="student-welcome" id="studentWelcomeText">Welcome, Student</div>
+      </div>
+    </div>
+
+    <div class="header-status">
+      <div class="status-pill">
+        <span class="status-dot" id="headerStatusDot"></span>
+        <span id="headerStatusText">Connected to class</span>
+      </div>
+
+      <div class="code-pill">
+        <span>Class Code: </span>
+        <span id="headerClassCode">----</span>
+      </div>
+
+      <button class="theme-toggle-btn" id="themeToggleBtn" title="Toggle Light/Dark Theme">
+        🌓 Theme
+      </button>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Top New Tab & Search Bar -->
+    <section class="search-section">
+      <form class="search-box" id="newTabForm">
+        <span class="search-icon">🔍</span>
+        <input
+          type="text"
+          class="search-input"
+          id="newTabInput"
+          placeholder="Type a study website address (e.g. wikipedia.org) or search..."
+          autocomplete="off"
+        >
+        <button type="submit" class="go-btn" id="goBtn">
+          <span>Go</span>
+          <span>↗</span>
+        </button>
+      </form>
+      <div class="search-hint">
+        <span>⚠️</span>
+        <span>Sites outside your study folders may be flagged to your teacher.</span>
+      </div>
+    </section>
+
+    <!-- Navigation / Breadcrumbs -->
+    <div class="nav-bar" id="navBar" style="display: none;">
+      <div class="breadcrumb">
+        <span class="breadcrumb-link" id="breadcrumbHome">Study Folders</span>
+        <span class="breadcrumb-separator">›</span>
+        <span id="breadcrumbCurrent">Subject</span>
+      </div>
+      <button class="back-btn" id="backBtn">
+        <span>← Back to all folders</span>
+      </button>
+    </div>
+
+    <!-- VIEW 1: All Folders Grid -->
+    <section id="allFoldersView">
+      <h2 class="section-heading">Your Study Folders</h2>
+      <div class="folders-grid" id="foldersGrid">
+        <!-- Dynamically rendered folder cards -->
+      </div>
+    </section>
+
+    <!-- VIEW 2: Inside Folder View -->
+    <section id="singleFolderView" style="display: none;">
+      <div class="folder-view-content">
+        <!-- Links List -->
+        <div>
+          <h2 class="section-heading" id="folderViewHeading">Subject Resources</h2>
+          <div class="links-grid" id="folderLinksList">
+            <!-- Dynamically rendered link cards -->
+          </div>
+        </div>
+
+        <!-- Notes Area per Folder -->
+        <div class="notes-container">
+          <div class="notes-header">
+            <div class="notes-title">
+              <span>📝</span>
+              <span id="notesTitleSubject">My Notes</span>
+            </div>
+            <div class="notes-status" id="notesSaveStatus">Saved ✓</div>
+          </div>
+          <div class="notes-desc">
+            Personal notes for this subject. Automatically saved on this device.
+          </div>
+          <textarea
+            class="notes-textarea"
+            id="folderNotesTextarea"
+            placeholder="Type notes, formulas, questions, or revision points here..."
+          ></textarea>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>
