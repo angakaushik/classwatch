@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ClassWatch — Privacy-First Classroom Focus & Study System
 
 ClassWatch is a lightweight, privacy-conscious classroom focus and digital study system designed for teachers and students. It enables teachers to maintain classroom focus without collecting personal data, recording screens, or logging keystrokes.
@@ -206,3 +207,6 @@ npm test
 2. Locate the **ClassWatch Student** card.
 3. Click the **Reload icon (🔄)** in the lower right of the card.
 4. Any changes to `manifest.json`, `background.js`, `popup.html`, `dashboard.html`, etc. take effect immediately.
+=======
+# classwatch
+>>>>>>> 663f9151e3a2d72eabb929668a1bbd508a533cc6
